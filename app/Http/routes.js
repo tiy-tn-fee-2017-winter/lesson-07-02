@@ -1,4 +1,10 @@
 'use strict'
+'use strict'
+'use strict'
+'use strict'
+'use strict'
+'use strict'
+'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +33,36 @@ const fetch = require('node-fetch');
 // }
 
 Route.get('/', function * (request, response) {
-  const res = yield fetch('http://swapi.co/people/1');
+  const res = yield fetch('http://swapi.co/api/people/1');
   const luke = yield res.json();
 
   response.json(luke);
+});
+
+// const Database = require('knex')(config.development);
+const Database = use('Database');
+
+Route.get('/restaurants', function * (request, response) {
+  // Get all rows from the "restaurants" table
+  const items = yield Database.select().from('restaurants');
+
+  response.send(items);
+});
+
+Route.post('/restaurants', function * (request, response) {
+  const restaurant = {
+    name: request.input('name'),
+    category: request.input('category'),
+    wait_time: request.input('wait_time'),
+    take_out: request.input('take_out'),
+    formal: request.input('formal'),
+    address: request.input('address'),
+    flair: request.input('flair'),
+    price_level: request.input('price_level'),
+  };
+
+  yield Database.insert(restaurant)
+    .into('restaurants');
+
+  response.send(restaurant);
 });
