@@ -86,3 +86,27 @@ Route.post('/restaurants', function * (request, response) {
 
   response.send(restaurant);
 });
+
+Route.put('/restaurants/:id', function * (request, response) {
+  const id = request.param('id');
+
+  const r = yield Database.select().from('restaurants')
+    .where({ id: id })
+    .limit(1)
+    // This is getting the first item from the result
+    .first();
+
+  // Check if the restaurant exists
+  if (r === undefined) {
+    // Send the status code 404 (not found) with a JSON error object
+    return response.status(404).json({
+      error: 'Not Found'
+    });
+  }
+
+  const input = request.only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
+
+  yield Database.table('restaurants').update(input);
+
+  response.send(input);
+});
