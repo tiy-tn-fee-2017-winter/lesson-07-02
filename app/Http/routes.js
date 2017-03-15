@@ -1,10 +1,4 @@
 'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -39,74 +33,6 @@ Route.get('/', function * (request, response) {
   response.json(luke);
 });
 
-// const Database = require('knex')(config.development);
-const Database = use('Database');
+Route.resource('restaurants', 'RestaurantController');
 
-Route.get('/restaurants', function * (request, response) {
-  // Get all rows from the "restaurants" table
-  const items = yield Database.select().from('restaurants');
-
-  response.send(items);
-});
-
-Route.get('/restaurants/:id', function * (request, response) {
-  const id = request.param('id');
-
-  const r = yield Database.select().from('restaurants')
-    .where({ id: id })
-    .limit(1)
-    // This is getting the first item from the result
-    .first();
-
-  // Check if the restaurant exists
-  if (r === undefined) {
-    // Send the status code 404 (not found) with a JSON error object
-    return response.status(404).json({
-      error: 'Not Found'
-    });
-  }
-
-  response.send(r);
-});
-
-Route.post('/restaurants', function * (request, response) {
-  const restaurant = {
-    name: request.input('name'),
-    category: request.input('category'),
-    wait_time: request.input('wait_time'),
-    take_out: request.input('take_out'),
-    formal: request.input('formal'),
-    address: request.input('address'),
-    flair: request.input('flair'),
-    price_level: request.input('price_level'),
-  };
-
-  yield Database.insert(restaurant)
-    .into('restaurants');
-
-  response.send(restaurant);
-});
-
-Route.put('/restaurants/:id', function * (request, response) {
-  const id = request.param('id');
-
-  const r = yield Database.select().from('restaurants')
-    .where({ id: id })
-    .limit(1)
-    // This is getting the first item from the result
-    .first();
-
-  // Check if the restaurant exists
-  if (r === undefined) {
-    // Send the status code 404 (not found) with a JSON error object
-    return response.status(404).json({
-      error: 'Not Found'
-    });
-  }
-
-  const input = request.only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
-
-  yield Database.table('restaurants').update(input);
-
-  response.send(input);
-});
+Route.post('restaurants/:id/reviews', 'RestaurantController.storeReview');
