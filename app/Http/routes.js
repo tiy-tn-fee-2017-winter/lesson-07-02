@@ -38,9 +38,10 @@ const Database = use('Database');
 const Restaurant = use('App/Model/Restaurant');
 
 Route.get('/restaurants', function * (request, response) {
-  // Get all rows from the "restaurants" table
+  // Get all rows from the "restaurants" table and their related "reviews"
   // const items = yield Database.select().from('restaurants');
-  const items = yield Restaurant.all();
+  // const items = yield Restaurant.all();
+  const items = yield Restaurant.with('reviews').fetch();
 
   response.send(items);
 });
@@ -50,6 +51,8 @@ Route.get('/restaurants/:id', function * (request, response) {
 
   // SELECT * FROM restaurants WHERE id = ? LIMIT 1
   const r = yield Restaurant.findOrFail(id);
+  // Load all related "reviews"
+  yield r.related('reviews').load();
 
   response.send(r);
 });
