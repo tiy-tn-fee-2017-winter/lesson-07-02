@@ -1,10 +1,4 @@
 'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
-'use strict'
 
 /*
 |--------------------------------------------------------------------------
@@ -41,10 +35,12 @@ Route.get('/', function * (request, response) {
 
 // const Database = require('knex')(config.development);
 const Database = use('Database');
+const Restaurant = use('App/Model/Restaurant');
 
 Route.get('/restaurants', function * (request, response) {
   // Get all rows from the "restaurants" table
-  const items = yield Database.select().from('restaurants');
+  // const items = yield Database.select().from('restaurants');
+  const items = yield Restaurant.all();
 
   response.send(items);
 });
@@ -52,61 +48,35 @@ Route.get('/restaurants', function * (request, response) {
 Route.get('/restaurants/:id', function * (request, response) {
   const id = request.param('id');
 
-  const r = yield Database.select().from('restaurants')
-    .where({ id: id })
-    .limit(1)
-    // This is getting the first item from the result
-    .first();
-
-  // Check if the restaurant exists
-  if (r === undefined) {
-    // Send the status code 404 (not found) with a JSON error object
-    return response.status(404).json({
-      error: 'Not Found'
-    });
-  }
+  // SELECT * FROM restaurants WHERE id = ? LIMIT 1
+  const r = yield Restaurant.findOrFail(id);
 
   response.send(r);
 });
 
 Route.post('/restaurants', function * (request, response) {
-  const restaurant = {
-    name: request.input('name'),
-    category: request.input('category'),
-    wait_time: request.input('wait_time'),
-    take_out: request.input('take_out'),
-    formal: request.input('formal'),
-    address: request.input('address'),
-    flair: request.input('flair'),
-    price_level: request.input('price_level'),
-  };
+  const input = request
+    .only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
 
-  yield Database.insert(restaurant)
-    .into('restaurants');
+  const restaurant = yield Restaurant.create(input);
 
   response.send(restaurant);
 });
 
 Route.put('/restaurants/:id', function * (request, response) {
+  // Get the id from the request
   const id = request.param('id');
 
-  const r = yield Database.select().from('restaurants')
-    .where({ id: id })
-    .limit(1)
-    // This is getting the first item from the result
-    .first();
+  // Find the restaurant by its id
+  const r = yield Restaurant.findOrFail(id);
 
-  // Check if the restaurant exists
-  if (r === undefined) {
-    // Send the status code 404 (not found) with a JSON error object
-    return response.status(404).json({
-      error: 'Not Found'
-    });
-  }
-
+  // Get the JSON input from the request
   const input = request.only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
 
-  yield Database.table('restaurants').update(input);
+  // Fill in our restaurant with updated input
+  r.fill(input);
+  // Save our changes to the database
+  yield r.save();
 
-  response.send(input);
+  response.send(r);
 });
