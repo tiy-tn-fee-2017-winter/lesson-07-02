@@ -62,6 +62,7 @@ Route.post('/restaurants', function * (request, response) {
     .only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
 
   const restaurant = yield Restaurant.create(input);
+  yield restaurant.related('reviews').load();
 
   response.send(restaurant);
 });
@@ -80,6 +81,7 @@ Route.put('/restaurants/:id', function * (request, response) {
   r.fill(input);
   // Save our changes to the database
   yield r.save();
+  yield r.related('reviews').load();
 
   response.send(r);
 });
