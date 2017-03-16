@@ -33,58 +33,7 @@ Route.get('/', function * (request, response) {
   response.json(luke);
 });
 
-// const Database = require('knex')(config.development);
-const Database = use('Database');
-const Restaurant = use('App/Model/Restaurant');
-
-Route.get('/restaurants', function * (request, response) {
-  // Get all rows from the "restaurants" table and their related "reviews"
-  // const items = yield Database.select().from('restaurants');
-  // const items = yield Restaurant.all();
-  const items = yield Restaurant.with('reviews').fetch();
-
-  response.send(items);
-});
-
-Route.get('/restaurants/:id', function * (request, response) {
-  const id = request.param('id');
-
-  // SELECT * FROM restaurants WHERE id = ? LIMIT 1
-  const r = yield Restaurant.findOrFail(id);
-  // Load all related "reviews"
-  yield r.related('reviews').load();
-
-  response.send(r);
-});
-
-Route.post('/restaurants', function * (request, response) {
-  const input = request
-    .only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
-
-  const restaurant = yield Restaurant.create(input);
-  yield restaurant.related('reviews').load();
-
-  response.send(restaurant);
-});
-
-Route.put('/restaurants/:id', function * (request, response) {
-  // Get the id from the request
-  const id = request.param('id');
-
-  // Find the restaurant by its id
-  const r = yield Restaurant.findOrFail(id);
-
-  // Get the JSON input from the request
-  const input = request.only('name', 'category', 'wait_time', 'take_out', 'formal', 'address', 'flair', 'price_level');
-
-  // Fill in our restaurant with updated input
-  r.fill(input);
-  // Save our changes to the database
-  yield r.save();
-  yield r.related('reviews').load();
-
-  response.send(r);
-});
+Route.resource('/restaurants', 'RestaurantController');
 
 const Review = use('App/Model/Review');
 
