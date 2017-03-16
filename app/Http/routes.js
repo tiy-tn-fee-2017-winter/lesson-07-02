@@ -34,6 +34,8 @@ Route.get('/', function * (request, response) {
 });
 
 Route.resource('/restaurants', 'RestaurantController');
+Route.post('/users', 'UserController.store');
+Route.post('/login', 'UserController.login');
 
 const Review = use('App/Model/Review');
 
