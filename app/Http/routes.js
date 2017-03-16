@@ -37,16 +37,5 @@ Route.resource('/restaurants', 'RestaurantController');
 Route.post('/users', 'UserController.store');
 Route.post('/login', 'UserController.login');
 
-const Review = use('App/Model/Review');
-
-Route.post('/restaurants/:restaurant_id/reviews', function * (request, response) {
-  const restaurant_id = request.param('restaurant_id');
-  const input = request.only('rating', 'review');
-  input.restaurant_id = restaurant_id;
-
-  // const review = new Review(input);
-  // yield review.save();
-  const review = yield Review.create(input);
-
-  response.send(review);
-});
+Route.post('/restaurants/:restaurant_id/reviews',
+  'ReviewController.store').middleware('auth');

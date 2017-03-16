@@ -41,7 +41,7 @@ class RestaurantController {
     // Load reviews for this restaurant
     yield restaurant.related('reviews').load();
 
-    response.json();
+    response.json(restaurant);
   }
 
   // Not used in APIs this is for showing an edit form
